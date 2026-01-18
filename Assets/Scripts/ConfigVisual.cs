@@ -1,14 +1,17 @@
 using UnityEngine;
 
-public class ConfigVisual : MonoBehaviour
+public class ConfigVisual : BasePlayerAuthorityProvider
 {
     [SerializeField] Material[] availableMaterials;
     [SerializeField] float minScale = 0.75f;
     [SerializeField] float maxScale = 1.2f;
     [SerializeField] GameObject model;
 
-    private void Awake()
+
+    protected override void Awake()
     {
+        base.Awake();
+
         int idx = Random.Range(0, availableMaterials.Length);
         var material = availableMaterials[idx];
         Renderer rend = model.GetComponent<Renderer>();
