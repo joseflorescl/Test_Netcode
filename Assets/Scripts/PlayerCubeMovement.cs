@@ -12,15 +12,10 @@ public class PlayerCubeMovement : BasePlayerAuthorityProvider
     {
         base.Awake();
 
-        Debug.Log("PlayerCubeMovement Awake", gameObject);
+        //Debug.Log("PlayerCubeMovement Awake", gameObject);
         playerInputManager = GetComponent<PlayerInputManager>();
         rb = GetComponent<Rigidbody>();
-    }          
-
-    private void Start()
-    {
-        print("PlayerCubeMovement Start");
-    }
+    }    
 
     private void Update()
     {
