@@ -1,15 +1,16 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class ConfigVisualNetwork : NetworkBehaviour
+public class ConfigVisualNetwork : NetworkAuthorityComponentDisabler<ConfigVisual>
 {
     NetworkVariable<int> MaterialIndex = new(value: -1);
 
     ConfigVisual configVisual;
 
-    private void Awake()
+    protected override void Awake()
     {
-        configVisual = GetComponent<ConfigVisual>();
+        base.Awake();
+        configVisual = targetComponent;
         configVisual.AssignRandomMaterialOnStart = false; // Porque se usará el evento OnMaterialChanged.
     }
 
@@ -25,6 +26,8 @@ public class ConfigVisualNetwork : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+
         if (IsOwner)
         {
             int randomValue = Random.Range(0, configVisual.AvailableMaterials.Length);
@@ -35,7 +38,8 @@ public class ConfigVisualNetwork : NetworkBehaviour
         {
             print($"NO soy el owner y NO soy server: uso el valor actual de MaterialIndex: {MaterialIndex.Value}");
             configVisual.SetMaterialFromIndex(MaterialIndex.Value);
-        }        
+        }
+
     }
 
     [ServerRpc]
@@ -49,12 +53,5 @@ public class ConfigVisualNetwork : NetworkBehaviour
         print($"Evento OnMaterialChanged. newIdx:{newIdx}");
         configVisual.SetMaterialFromIndex(newIdx);
     }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            print($"Valor de index: {MaterialIndex.Value}");
-        }
-    }
+    
 }
