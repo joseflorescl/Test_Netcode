@@ -104,9 +104,12 @@ MonoBehaviour:
   - {fileID: 2100000, guid: b61d2aadc41c3ba499c4cadc27aa5f8e, type: 2}
   - {fileID: 2100000, guid: 8d4fa649010d3e54fa78979434287c6a, type: 2}
   - {fileID: 2100000, guid: 9d09b0d5365f39149933c77e57e77a21, type: 2}
+  - {fileID: 2100000, guid: b162509befe5cf34395e037172fb6ff9, type: 2}
+  - {fileID: 2100000, guid: 23091295b6d265e4cb8fdd118f02d859, type: 2}
   minScale: 0.75
   maxScale: 1.8
   model: {fileID: 8930224838649559566}
+  assignRandomMaterialOnStart: 1
 --- !u!1 &8930224838649559566
 GameObject:
   m_ObjectHideFlags: 0

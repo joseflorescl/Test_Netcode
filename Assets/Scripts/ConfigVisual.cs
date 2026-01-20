@@ -1,34 +1,50 @@
 using UnityEngine;
 
-public class ConfigVisual : BasePlayerAuthorityProvider
+public class ConfigVisual : MonoBehaviour
 {
-    [SerializeField] Material[] availableMaterials;
-    [SerializeField] float minScale = 0.75f;
-    [SerializeField] float maxScale = 1.2f;
-    [SerializeField] GameObject model;
+    [SerializeField] protected Material[] availableMaterials;
+    [SerializeField] protected float minScale = 0.75f;
+    [SerializeField] protected float maxScale = 1.2f;
+    [SerializeField] protected GameObject model;
+    [SerializeField] bool assignRandomMaterialOnStart = true;
 
 
-    protected override void Awake()
+    public Material[] AvailableMaterials => availableMaterials;
+    public bool AssignRandomMaterialOnStart { get => assignRandomMaterialOnStart; set => assignRandomMaterialOnStart = value; }
+
+    private void Awake()
     {
-        base.Awake();
         Debug.Log("Awake. ConfigVisual", gameObject);
-    }
+    }    
 
-    private void Start()
+    protected virtual void Start()
     {
-        SetRandomMaterial();
+        print("ConfigVisual.Start");
+
+        if (assignRandomMaterialOnStart)
+        {
+            SetRandomMaterial();
+        }
+        
         SetRandomScale();
     }
 
-    void SetRandomMaterial()
+    protected void SetRandomMaterial()
     {
+        print("SetRandomMaterial");
         int idx = Random.Range(0, availableMaterials.Length);
+        SetMaterialFromIndex(idx);
+    }
+
+    public void SetMaterialFromIndex(int idx)
+    {
+        print($"SetMaterialFromIndex. idx: {idx}");
         var material = availableMaterials[idx];
         Renderer rend = model.GetComponent<Renderer>();
         rend.material = material;
     }
 
-    void SetRandomScale()
+    protected void SetRandomScale()
     {
         float scale = Random.Range(minScale, maxScale);
         Vector3 currentScale = model.transform.localScale;

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerCubeMovement : BasePlayerAuthorityProvider
+public class PlayerCubeMovement : MonoBehaviour
 {
     [SerializeField] float speed = 1.0f;
 
@@ -8,14 +8,12 @@ public class PlayerCubeMovement : BasePlayerAuthorityProvider
     Rigidbody rb;
     Vector3 move;
 
-    protected override void Awake()
+    private void Awake()
     {
-        base.Awake();
-
         //Debug.Log("PlayerCubeMovement Awake", gameObject);
         playerInputManager = GetComponent<PlayerInputManager>();
         rb = GetComponent<Rigidbody>();
-    }    
+    }
 
     private void Update()
     {
