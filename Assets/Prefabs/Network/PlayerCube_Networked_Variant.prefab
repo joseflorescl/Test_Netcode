@@ -194,8 +194,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  MaterialIndex:
-    m_InternalValue: 0
+  ownerChoosesColorOnSpawn: 0
 --- !u!1 &5276481242296268745 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8930224838649559566, guid: cbadef13403efa641bcaf27fcae1bea6, type: 3}
