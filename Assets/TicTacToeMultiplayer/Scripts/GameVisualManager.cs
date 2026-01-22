@@ -1,6 +1,7 @@
+using Unity.Netcode;
 using UnityEngine;
 
-public class GameVisualManager : MonoBehaviour
+public class GameVisualManager : NetworkBehaviour
 {
     private const float GRID_SIZE = 4f;
 
@@ -20,8 +21,29 @@ public class GameVisualManager : MonoBehaviour
 
     private void OnClickedOnGridPosition(object sender, GameManager.OnClickedOnGridPositionEventArgs e)
     {
-        var pos = GetGridWorldPosition(e.x, e.y);
-        Instantiate(crossPrefab, pos, Quaternion.identity);
+        SpawnObjectRpc(e.x, e.y, e.playerType);
+    }
+
+    [Rpc(SendTo.Server)]
+    void SpawnObjectRpc(int x,  int y, PlayerType playerType)
+    {
+        Transform prefab;
+        switch (playerType)
+        {
+            case PlayerType.Cross:
+                prefab = crossPrefab;
+                break;
+            case PlayerType.Circle:
+                prefab = circlePrefab;
+                break;
+            default:
+                prefab = crossPrefab;
+                break;
+        }
+
+        var pos = GetGridWorldPosition(x, y);
+        Transform spawned = Instantiate(prefab, pos, Quaternion.identity);
+        spawned.GetComponent<NetworkObject>().Spawn(true);
     }
 
     Vector2 GetGridWorldPosition(int x,  int y)
