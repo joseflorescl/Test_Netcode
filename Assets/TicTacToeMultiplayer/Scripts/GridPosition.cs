@@ -7,6 +7,11 @@ public class GridPosition : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (GameManager.Instance.CurrentPlayablePlayerType == PlayerType.None)
+        {
+            print("El juego no ha comenzado todavía");
+            return;
+        }
         GameManager.Instance.ClickedOnGridPositionRpc(x, y, GameManager.Instance.LocalPlayerType);
     }
 }

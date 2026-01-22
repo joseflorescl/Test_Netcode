@@ -9,6 +9,9 @@ public class GameManager : NetworkBehaviour
 {    
     public static GameManager Instance { get; private set; }
     public event EventHandler<OnClickedOnGridPositionEventArgs> OnClickedOnGridPosition;
+    public event EventHandler OnGameStarted;
+    public event EventHandler OnCurrentPlayablePlayerTypeChanged;
+
     public class OnClickedOnGridPositionEventArgs: EventArgs
     {
         public int x;
@@ -17,9 +20,12 @@ public class GameManager : NetworkBehaviour
     }    
 
     PlayerType localPlayerType;
-    PlayerType currentPlayablePlayerType;
+    NetworkVariable<PlayerType> currentPlayablePlayerType = new(value: PlayerType.None);
 
     public PlayerType LocalPlayerType => localPlayerType;
+    public PlayerType CurrentPlayablePlayerType => currentPlayablePlayerType.Value;
+
+    PlayerType[,] playerTypeArray;
 
     private void Awake()
     {
@@ -28,6 +34,7 @@ public class GameManager : NetworkBehaviour
             Debug.LogError("Más de 1 instancia de GameManager");
         }
         Instance = this;
+        playerTypeArray = new PlayerType[3, 3];
     }
 
     public override void OnNetworkSpawn()
@@ -44,7 +51,22 @@ public class GameManager : NetworkBehaviour
 
         if (IsServer)
         {
-            currentPlayablePlayerType = PlayerType.Cross;
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
+        }
+
+        currentPlayablePlayerType.OnValueChanged += (PlayerType oldPlayerType, PlayerType newPlayerType) =>
+        {
+            OnCurrentPlayablePlayerTypeChanged?.Invoke(this, EventArgs.Empty);
+        };
+
+    }
+
+    private void OnClientConnectedCallback(ulong obj)
+    {
+        if (NetworkManager.Singleton.ConnectedClientsList.Count == 2)
+        {
+            currentPlayablePlayerType.Value = PlayerType.Cross;
+            TriggerOnGameStartedRpc();
         }
     }
 
@@ -53,8 +75,14 @@ public class GameManager : NetworkBehaviour
     {
         print($"Click: {x}, {y}");
 
-        if (playerType != currentPlayablePlayerType)
+        if (playerType != currentPlayablePlayerType.Value)
             return;
+
+
+        if (playerTypeArray[x, y] != PlayerType.None)
+            return;
+
+        playerTypeArray[x, y] = playerType;
 
         OnClickedOnGridPosition?.Invoke(this, new OnClickedOnGridPositionEventArgs
         {
@@ -64,22 +92,53 @@ public class GameManager : NetworkBehaviour
         });
 
         SwitchCurrentPlayer();
+        TestWinner();
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void TriggerOnGameStartedRpc()
+    {
+        OnGameStarted?.Invoke(this, EventArgs.Empty);
     }
 
     void SwitchCurrentPlayer()
     {
-        switch (currentPlayablePlayerType)
+        switch (currentPlayablePlayerType.Value)
         {
             default:
             case PlayerType.Cross:
-                currentPlayablePlayerType = PlayerType.Circle;
+                currentPlayablePlayerType.Value = PlayerType.Circle;
                 break;
             case PlayerType.Circle:
-                currentPlayablePlayerType = PlayerType.Cross;
+                currentPlayablePlayerType.Value = PlayerType.Cross;
                 break;
         }
     }
 
+    void TestWinner()
+    {
+        if (TestWinnerLine(0))// bottom row
+        {
+            print("Winner");
+        }
+    }
+
+    bool TestWinnerLine(int lineIdx)
+    {
+
+        var firstValue = playerTypeArray[0, lineIdx];
+        if (firstValue == PlayerType.None)
+            return false;
+
+        for (int i = 1; i < playerTypeArray.GetLength(1); i++)
+        {
+            var item = playerTypeArray[i, lineIdx];
+            if (item != firstValue)
+                return false;
+        }
+
+        return true;
+    }
 
 
 }
