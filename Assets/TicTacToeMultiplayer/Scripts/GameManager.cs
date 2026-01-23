@@ -16,6 +16,9 @@ public class GameManager : NetworkBehaviour
     public event EventHandler OnCurrentPlayablePlayerTypeChanged;
     public event EventHandler<OnGameWinEventArgs> OnGameWin;
     public event EventHandler OnRematch;
+    public event EventHandler OnGameTie;
+    public event EventHandler OnScoreChanged;
+    public event EventHandler OnPlacedObject;
 
     public class OnGameWinEventArgs : EventArgs
     {
@@ -46,6 +49,9 @@ public class GameManager : NetworkBehaviour
 
     PlayerType[,] playerTypeArray;
     List<Line> lineList;
+    NetworkVariable<int> playerCrossScore = new();
+    NetworkVariable<int> playerCircleScore = new();
+
 
     private void Awake()
     {
@@ -98,6 +104,9 @@ public class GameManager : NetworkBehaviour
             OnCurrentPlayablePlayerTypeChanged?.Invoke(this, EventArgs.Empty);
         };
 
+        playerCrossScore.OnValueChanged += (int prevScore, int newScore)  => { OnScoreChanged?.Invoke(this, EventArgs.Empty); };
+        playerCircleScore.OnValueChanged += (int prevScore, int newScore) => { OnScoreChanged?.Invoke(this, EventArgs.Empty); };
+
     }
 
     private void OnClientConnectedCallback(ulong obj)
@@ -122,6 +131,7 @@ public class GameManager : NetworkBehaviour
             return;
 
         playerTypeArray[x, y] = playerType;
+        TriggerOnPlacedObjectRpc();
 
         OnClickedOnGridPosition?.Invoke(this, new OnClickedOnGridPositionEventArgs
         {
@@ -132,6 +142,12 @@ public class GameManager : NetworkBehaviour
 
         SwitchCurrentPlayer();
         TestWinner();
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void TriggerOnPlacedObjectRpc()
+    {
+        OnPlacedObject?.Invoke(this, EventArgs.Empty);
     }
 
     [Rpc(SendTo.ClientsAndHost)]
@@ -165,11 +181,47 @@ public class GameManager : NetworkBehaviour
                 print("Winner");
                 currentPlayablePlayerType.Value = PlayerType.None;
                 PlayerType winner = playerTypeArray[line.centerGridPosition.x, line.centerGridPosition.y];
+
+                switch (winner)
+                {                    
+                    case PlayerType.Cross:
+                        playerCrossScore.Value++;
+                        break;
+                    case PlayerType.Circle:
+                        playerCircleScore.Value++;
+                        break;
+                }
+
                 TriggerOnGameWinRpc(i, winner);
-                break;
+                return;
             }
-            
         }
+
+        // Validar un empate
+        bool hasTie = true;
+        for (int i = 0; i < playerTypeArray.GetLength(0); i++)
+        {
+            for (int j = 0; j < playerTypeArray.GetLength(1); j++)
+            {
+                if (playerTypeArray[i, j] == PlayerType.None)
+                {
+                    hasTie = false;
+                    break;
+                }
+
+            }
+        }
+
+        if (hasTie)
+        {
+            TriggerOnGamedTieRpc();
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void TriggerOnGamedTieRpc()
+    {
+        OnGameTie?.Invoke(this, EventArgs.Empty);
     }
 
     [Rpc(SendTo.ClientsAndHost)]
@@ -257,4 +309,14 @@ public class GameManager : NetworkBehaviour
     {
         OnRematch?.Invoke(this, EventArgs.Empty);
     }
+
+    public (int playerCrossScore, int playerCircleScore) GetScores()
+    {
+        return new()
+        {
+            playerCrossScore = this.playerCrossScore.Value,
+            playerCircleScore = this.playerCircleScore.Value
+        };
+    }
+
 }
