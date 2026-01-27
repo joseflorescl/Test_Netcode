@@ -152,6 +152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  spawnedObjectPrefab: {fileID: 5314234662489993300, guid: 57c8d57b51c0fe447bbdb798ead23a0c, type: 3}
 --- !u!114 &7220307393358617226
 MonoBehaviour:
   m_ObjectHideFlags: 0

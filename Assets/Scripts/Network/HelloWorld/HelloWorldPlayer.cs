@@ -5,7 +5,11 @@ namespace HelloWorld
 {
     public class HelloWorldPlayer : NetworkBehaviour
     {
+        [SerializeField] Transform spawnedObjectPrefab;
+
         NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
+
+        string testServerRpc;
 
         public override void OnNetworkSpawn()
         {
@@ -15,6 +19,17 @@ namespace HelloWorld
             {
                 Move();
             }
+
+            if (IsServer)
+            {
+                testServerRpc = "Is Server";
+            }
+            else
+            {
+                testServerRpc = "Is NOT Server";
+            }
+
+            print($"OnNetworkSpawn: {testServerRpc}");
         }
 
         public override void OnNetworkDespawn()
@@ -48,5 +63,37 @@ namespace HelloWorld
         {
             return new Vector3(Random.Range(-3f, 3f), 1f, Random.Range(-3f, 3f));
         }
+
+        private void Update()
+        {
+            if (!IsOwner)
+                return;
+
+
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                //TestClientRpc();
+                //TestServerRpc(testServerRpc);
+                var spawned = Instantiate(spawnedObjectPrefab);
+                spawned.GetComponent<NetworkObject>().Spawn(true);
+
+
+            }
+        }
+
+        [Rpc(SendTo.Server)]
+        //[ServerRpc]
+        void TestServerRpc(string message)
+        {
+            //print($"TestServerRpc. {testServerRpc}. OwnerClientId: {OwnerClientId}.");
+            print($"TestServerRpc. {testServerRpc}. message: {message}");
+        }
+
+        [Rpc(SendTo.ClientsAndHost)]
+        void TestClientRpc()
+        {
+            print($"TestClientRpc. {testServerRpc}. OwnerClientId: {OwnerClientId}.");
+        }
+
     }
 }
