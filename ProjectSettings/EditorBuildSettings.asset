@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/TicTacToeMultiplayer/Scenes/GameScene.unity
     guid: fa227ba96ad86e349aeb1b1b30055ac4
+  - enabled: 1
+    path: Assets/LearnUnityMultiplayerTutorial/Scenes/GameScene.unity
+    guid: 8ccb994a0dc76ad428b640efa7adb6a3
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
