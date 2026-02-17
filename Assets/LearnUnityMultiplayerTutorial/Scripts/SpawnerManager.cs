@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -9,7 +10,8 @@ public class SpawnerManager : NetworkBehaviour
     [SerializeField] float maxX = 8f;
     [SerializeField] float minY = -4f;
     [SerializeField] float maxY = 6f;
-    
+
+    List<NetworkObjectReference> netObjSpawnedList = new(); // Solo el server maneja esta var
 
     private void Update()
     {
@@ -21,6 +23,12 @@ public class SpawnerManager : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.T))
         {
             TestClientRpc(Random.Range(1, 11));
+        }
+
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            // El destroy SOLO se puede hacer en el server
+            DestroyOneNetObjectServerRpc();
         }
     }
 
@@ -43,6 +51,9 @@ public class SpawnerManager : NetworkBehaviour
         // Broadcast: cambiarle el color
         SetColorToObjectSpawnedClientRpc(netObj, Random.ColorHSV());
 
+        // Solo el server lo agrega a su lista de objetos spawneados
+        AddNewNetObjSpawned(netObj);
+
     }
 
     [Rpc(SendTo.ClientsAndHost)]
@@ -63,5 +74,22 @@ public class SpawnerManager : NetworkBehaviour
     void TestClientRpc(int nTest)
     {
         print($"nTest: {nTest}");
+    }
+    
+    void AddNewNetObjSpawned(NetworkObjectReference netReference)
+    {
+        netObjSpawnedList.Add(netReference);
+    }
+
+    [Rpc(SendTo.Server)]
+    void DestroyOneNetObjectServerRpc()
+    {
+        if (netObjSpawnedList == null || netObjSpawnedList.Count == 0)
+            return;
+
+        var netObj = netObjSpawnedList[netObjSpawnedList.Count - 1];
+        netObjSpawnedList.Remove(netObj);
+        netObj.TryGet(out NetworkObject obj);
+        Destroy(obj.gameObject);
     }
 }

@@ -10,10 +10,21 @@ public class DeliveryManager : NetworkBehaviour
 
     int recipeCount;
 
+    //TODO: test net vars
+    NetworkList<PlayerData> playerDataNetworkList = new();
+
     private void Awake()
     {
         recipeCount = 0;
         UpdateRecipeUI();
+
+        playerDataNetworkList.OnListChanged += OnListChanged;
+        
+    }
+
+    private void OnListChanged(NetworkListEvent<PlayerData> changeEvent)
+    {
+        print("La lista ha cambiado.");
     }
 
     private void OnEnable()
@@ -47,6 +58,12 @@ public class DeliveryManager : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             OnMyEvent?.Invoke();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            playerDataNetworkList.Add(new PlayerData()); //TODO test
+            print($"Count = {playerDataNetworkList.Count}");
         }
     }
     public void DeliverRecipe()

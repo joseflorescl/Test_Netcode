@@ -40,6 +40,8 @@ public class ConfigVisualNetwork : NetworkAuthorityComponentDisabler<ConfigVisua
             }
             else if (!IsServer)
             {
+                // Nota: si es el server, entonces el valor de MaterialIndex.Value todavía no lo ha seteado su cliente owner, así es que el valor de MaterialIndex.Value será
+                //       el valor por defecto, que es -1.
                 print($"NO soy el owner y NO soy server: uso el valor actual de MaterialIndex: {MaterialIndex.Value}");
                 configVisual.SetMaterialFromIndex(MaterialIndex.Value);
             }
@@ -59,7 +61,7 @@ public class ConfigVisualNetwork : NetworkAuthorityComponentDisabler<ConfigVisua
                 configVisual.SetMaterialFromIndex(MaterialIndex.Value);
             }
             // Para el caso del player del owner, el server elegirá mi color, pero como es probable que el evento OnNetworkSpawn
-            // primero se gatillen en el cliente y NO en el server, el valor de MaterialIndex.Value todavía no ha sido seteado
+            // primero se gatille en el cliente y NO en el server, el valor de MaterialIndex.Value todavía no ha sido seteado
             // por el server: debemos esperar a que se gatille el evento.
         }
 

@@ -85,6 +85,8 @@ public class GameManager : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         print($"Local Id: {NetworkManager.Singleton.LocalClientId}");
+        print($"Owner Id: {OwnerClientId}");
+
         if (NetworkManager.Singleton.LocalClientId == 0)
         {
             localPlayerType = PlayerType.Cross;
@@ -318,5 +320,29 @@ public class GameManager : NetworkBehaviour
             playerCircleScore = this.playerCircleScore.Value
         };
     }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            //print($"Llamada a TestClientRpc. Frame: {Time.frameCount}");
+            //TestClientRpc();
+
+            TestParameterServerRpc();
+        }
+    }
+
+    [Rpc(SendTo.ClientsAndHost)]
+    void TestClientRpc()
+    {
+        print($"TestClientRpc. Frame: {Time.frameCount}");
+    }
+
+    [Rpc(SendTo.Server)]
+    void TestParameterServerRpc(RpcParams rpcParams = default)
+    {
+        print($"Cliente que llamó el server rpc: {rpcParams.Receive.SenderClientId}");
+    }
+
 
 }
