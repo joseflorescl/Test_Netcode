@@ -84,8 +84,7 @@ public class GameManager : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        print($"Local Id: {NetworkManager.Singleton.LocalClientId}");
-        print($"Owner Id: {OwnerClientId}");
+        print($"Local Id: {NetworkManager.Singleton.LocalClientId}. Owner Id: {OwnerClientId}");
 
         if (NetworkManager.Singleton.LocalClientId == 0)
         {
