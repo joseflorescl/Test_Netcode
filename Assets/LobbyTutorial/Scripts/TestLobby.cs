@@ -6,6 +6,7 @@ using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
+
 using UnityEngine;
 
 public class TestLobby : MonoBehaviour
@@ -146,7 +147,7 @@ public class TestLobby : MonoBehaviour
             //TODO: se supone que en la nueva versión del SDK se debe usar LobbyService en vez de Lobbies.
             // ej: await LobbyService.Instance.QueryLobbiesAsync(queryLobbiesOptions);
 
-            QueryResponse queryResponse = await Lobbies.Instance.QueryLobbiesAsync(queryLobbiesOptions);
+            QueryResponse queryResponse = await LobbyService.Instance.QueryLobbiesAsync(queryLobbiesOptions);
             print($"Lobbies encontrados: {queryResponse.Results.Count}");
 
             foreach (var lobby in queryResponse.Results)
@@ -179,7 +180,7 @@ public class TestLobby : MonoBehaviour
         //TODO eventos:   OnJoinStarted, OnJoinFailed, y un Succeded también podría ser. Y agregarlos en esta función y en la de QuickJoin.
         try
         {
-            QueryResponse queryResponse = await Lobbies.Instance.QueryLobbiesAsync();
+            QueryResponse queryResponse = await LobbyService.Instance.QueryLobbiesAsync();
             if (queryResponse == null || queryResponse.Results == null || queryResponse.Results.Count == 0)
             {
                 print("No hay lobbies disponibles.");
@@ -192,7 +193,7 @@ public class TestLobby : MonoBehaviour
             {
                 Player = BuildPlayerData(playerName)
             };
-            joinedLobby = await Lobbies.Instance.JoinLobbyByIdAsync(firstLobby.Id, joinLobbyByIdOptions);
+            joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(firstLobby.Id, joinLobbyByIdOptions);
 
             print($"Join OK. Lobby: {joinedLobby.Name}. AvailableSlots: {joinedLobby.AvailableSlots}");
         }
@@ -212,7 +213,7 @@ public class TestLobby : MonoBehaviour
                 Player = BuildPlayerData(playerName)
             };
 
-            joinedLobby = await Lobbies.Instance.JoinLobbyByCodeAsync(lobbyCode, joinLobbyByCodeOptions);
+            joinedLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode, joinLobbyByCodeOptions);
 
             print($"Join with Code OK. Lobby: {joinedLobby.Name}. AvailableSlots: {joinedLobby.AvailableSlots}");
         }
@@ -253,7 +254,7 @@ public class TestLobby : MonoBehaviour
     {
         try
         {
-            joinedLobby = await Lobbies.Instance.QuickJoinLobbyAsync();
+            joinedLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
             print($"QuickJoinLobby OK. Lobby: {joinedLobby.Name}. AvailableSlots: {joinedLobby.AvailableSlots}");
 
         }
@@ -278,7 +279,7 @@ public class TestLobby : MonoBehaviour
     {
         if (joinedLobby == null)
             return;
-        //QueryResponse queryResponse = await Lobbies.Instance.QueryLobbiesAsync();
+        //QueryResponse queryResponse = await LobbyService.Instance.QueryLobbiesAsync();
         //hostLobby = queryResponse.Results[0];
         joinedLobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
     }
@@ -298,7 +299,7 @@ public class TestLobby : MonoBehaviour
                 Data = BuildLobbyData(gameMode)
             };
 
-            joinedLobby = await Lobbies.Instance.UpdateLobbyAsync(joinedLobby.Id, updateLobbyOptions);
+            joinedLobby = await LobbyService.Instance.UpdateLobbyAsync(joinedLobby.Id, updateLobbyOptions);
         }
         catch (Exception e)
         {
@@ -376,7 +377,7 @@ public class TestLobby : MonoBehaviour
     {
         try
         {
-            joinedLobby = await Lobbies.Instance.UpdateLobbyAsync(joinedLobby.Id, new UpdateLobbyOptions
+            joinedLobby = await LobbyService.Instance.UpdateLobbyAsync(joinedLobby.Id, new UpdateLobbyOptions
             {
                 HostId = joinedLobby.Players[1].Id
             });
@@ -410,6 +411,5 @@ public class TestLobby : MonoBehaviour
 
         return joinedLobby.HostId == PlayerId;
     }
-
 
 }

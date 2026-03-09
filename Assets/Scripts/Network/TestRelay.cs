@@ -3,14 +3,17 @@ using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
+//TODO migrar SDK
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
+
 using UnityEngine;
 
 public class TestRelay : MonoBehaviour
 {
+    //TODO: migrar SDK
     const string ConnectionType = "udp"; // dtls udp
     [SerializeField] int maxPlayers = 4;
     [SerializeField] string joinCode;
@@ -74,16 +77,8 @@ public class TestRelay : MonoBehaviour
 
     void SetRelayServerData(Allocation allocation)
     {
-        RelayServerData relayServerData = new RelayServerData(allocation, ConnectionType);
+        RelayServerData relayServerData = AllocationUtils.ToRelayServerData(allocation, ConnectionType);
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
-        //NetworkManager.Singleton.GetComponent<UnityTransport>().SetHostRelayData(
-        //    allocation.RelayServer.IpV4,
-        //    (ushort)allocation.RelayServer.Port,
-        //    allocation.AllocationIdBytes,
-        //    allocation.Key,
-        //    allocation.ConnectionData
-        //    );
-
     }
 
     [ContextMenu("JoinRelay")]
@@ -103,7 +98,7 @@ public class TestRelay : MonoBehaviour
         {
             var joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
             print($"Joinning relay with code: {joinCode}");
-            SetRelayServerData(joinAllocation);
+            SetJoinRelayServerData(joinAllocation);
             NetworkManager.Singleton.StartClient();
         }
         catch (System.Exception e)
@@ -113,17 +108,10 @@ public class TestRelay : MonoBehaviour
         
     }
 
-    private void SetRelayServerData(JoinAllocation joinAllocation)
+    private void SetJoinRelayServerData(JoinAllocation joinAllocation)
     {
-        RelayServerData relayServerData = new RelayServerData(joinAllocation, ConnectionType);
+        RelayServerData relayServerData = AllocationUtils.ToRelayServerData(joinAllocation, ConnectionType);
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(relayServerData);
-        //NetworkManager.Singleton.GetComponent<UnityTransport>().SetClientRelayData(
-        //    joinAllocation.RelayServer.IpV4,
-        //    (ushort)joinAllocation.RelayServer.Port,
-        //    joinAllocation.AllocationIdBytes,
-        //    joinAllocation.Key,
-        //    joinAllocation.ConnectionData,
-        //    joinAllocation.HostConnectionData
-        //    );
     }
+
 }
